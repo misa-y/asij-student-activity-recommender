@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASIJ Profile Screener</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #000000;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding-bottom: 100px; /* Space for scrolling */
+        }
+
+        /* TYPOGRAPHY */
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        h2 {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.8rem;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #ccc;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .divider {
+            height: 2px;
+            background-color: #FFD700;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+
+        /* --- STEP 1 STYLES --- */
+        .grade-options input[type="radio"] { display: none; }
+        .grade-options label {
+            font-size: 1.2rem;
+            margin-right: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .grade-options label:hover { opacity: 0.8; }
+        .grade-options input:checked + label {
+            text-decoration: underline;
+            font-weight: bold;
+            transform: scale(1.05);
+        }
+
+        .freshman { color: #ff4d4d; }
+        .sophomore { color: #ff66b2; }
+        .junior { color: #00ced1; }
+        .senior { color: #32cd32; }
+
+        .course-box {
+            border: 1px solid #333;
+            padding: 20px;
+            height: 250px;
+            overflow-y: scroll;
+            background-color: #111;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .course-item {
+            display: block;
+            color: #ddd;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .course-item input { display: none; }
+        .course-item span { transition: color 0.2s; }
+        .course-item input:checked + span { color: #FFD700; font-weight: bold; }
+
+        /* Interest Colors */
+        .c-math { color: #ff6b6b; }
+        .c-science { color: #9acd32; }
+        .c-cs { color: #a3a3c2; }
+        .c-eng { color: #87ceeb; }
+        .c-bus { color: #ffd700; }
+        .c-soc { color: #ffa500; }
+        .c-health { color: #4169e1; }
+        .c-arts { color: #ff69b4; }
+        .c-edu { color: #87cefa; }
+        .c-agri { color: #32cd32; }
+
+        .interests-container label { display: inline-block; margin-bottom: 10px; cursor: pointer; }
+        .interests-container input { display: none; }
+        .interests-container input:checked + label { text-decoration: underline; font-weight: bold; }
+
+        /* --- STEP 2: EXTRACURRICULARS STYLES --- */
+        .hidden { display: none; }
+
+        .columns-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .activity-column {
+            padding: 5px; 
+        }
+
+        .section-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        /* --- CUSTOM DROPDOWN STYLES --- */
+        .custom-select-container {
+            position: relative;
+            width: 100%;
+        }
+
+        /* The Display Button (Choose Here) */
+        .select-display {
+            border: 2px solid #FFD700; /* Gold Outline */
+            border-radius: 6px;
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: transparent;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .select-display:hover {
+            border-color: #ffe066;
+            background-color: #1a1a1a;
+        }
+
+        /* The Filled Yellow State */
+        .select-display.filled {
+            background-color: #FFD700 !important;
+            color: black !important;
+            border-color: #FFD700 !important;
+        }
+
+        .select-display .arrow {
+            font-size: 0.8rem;
+        }
+
+        /* The Dropdown Menu */
+        .select-dropdown {
+            position: absolute;
+            top: 105%;
+            left: 0;
+            right: 0;
+            background-color: #111;
+            border: 1px solid #333;
+            border-radius: 6px;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            display: none; /* Hidden by default */
+        }
+
+        .select-dropdown.show {
+            display: block;
+        }
+
+        /* Search Box inside Dropdown */
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #222;
+            border: none;
+            border-bottom: 1px solid #333;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+        }
+
+        .search-box::placeholder {
+            color: #666;
+        }
+
+        /* Options List */
+        .options-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .option-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            color: #ddd;
+            transition: background 0.2s;
+            border-bottom: 1px solid #222;
+        }
+
+        .option-item:hover {
+            background-color: #333;
+            color: #FFD700;
+        }
+
+        .option-item.not-chosen {
+            font-style: italic;
+            color: #FFD700;
+            border-bottom: 1px solid #FFD700;
+        }
+
+        /* BUTTONS */
+        .action-btn {
+            background-color: #FFD700;
+            color: black;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-family: 'Playfair Display', serif;
+            font-weight: bold;
+            margin-top: 60px;
+            cursor: pointer;
+            border-radius: 4px;
+            display: block;
+            width: fit-content;
+        }
+        
+        .action-btn:hover {
+            background-color: #ffed4d;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="step-1">
+            <h1>Tell Us About You</h1>
+            <div class="divider"></div>
+
+            <form>
+                <h3>Current Grade Level</h3>
+                <div class="grade-options">
+                    <input type="radio" name="grade" id="freshman" onclick="updateCourses('freshman')">
+                    <label for="freshman" class="freshman">Freshman</label>
+
+                    <input type="radio" name="grade" id="sophomore" onclick="updateCourses('sophomore')">
+                    <label for="sophomore" class="sophomore">Sophomore</label>
+
+                    <input type="radio" name="grade" id="junior" onclick="updateCourses('junior')">
+                    <label for="junior" class="junior">Junior</label>
+
+                    <input type="radio" name="grade" id="senior" onclick="updateCourses('senior')">
+                    <label for="senior" class="senior">Senior</label>
+                </div>
+
+                <h3>Select All Courses You Have or Are Taking</h3>
+                <div class="course-box" id="courseList">
+                    <p style="color: #666; font-style: italic;">Select a grade level above to see courses.</p>
+                </div>
+
+                <h3>Interests (Select All That Apply)</h3>
+                <div class="interests-container">
+                    <input type="checkbox" id="math"><label for="math" class="c-math">Mathematics</label>
+                    <input type="checkbox" id="science"><label for="science" class="c-science">Sciences</label>
+                    <input type="checkbox" id="cs"><label for="cs" class="c-cs">Computer Science</label>
+                    <input type="checkbox" id="eng"><label for="eng" class="c-eng">Engineering</label>
+                    <br>
+                    <input type="checkbox" id="business"><label for="business" class="c-bus">Business</label>
+                    <input type="checkbox" id="soc"><label for="soc" class="c-soc">Social Sciences & Humanities</label>
+                    <input type="checkbox" id="health"><label for="health" class="c-health">Health & Medicine</label>
+                    <br>
+                    <input type="checkbox" id="arts"><label for="arts" class="c-arts">Arts & Communications</label>
+                    <input type="checkbox" id="edu"><label for="edu" class="c-edu">Education & Public Service</label>
+                    <input type="checkbox" id="agri"><label for="agri" class="c-agri">Agriculture & Environmental Studies</label>
+                </div>
+
+                <button type="button" class="action-btn" onclick="goToStep2()">Continue</button>
+            </form>
+        </div>
+
+        <div id="step-2" class="hidden">
+            <h1 class="section-header">Extracurriculars</h1>
+            <div class="divider"></div>
+
+            <h2>Clubs</h2>
+            <div class="columns-3">
+                <div class="activity-column">
+                    <h3>A Clubs</h3>
+                    <div class="custom-select-container" id="aclubs-container"></div>
+                </div>
+                <div class="activity-column">
+                    <h3>B Clubs</h3>
+                    <div class="custom-select-container" id="bclubs-container"></div>
+                </div>
+                <div class="activity-column">
+                    <h3>Non-Rotational</h3>
+                    <div class="custom-select-container" id="nonrot-container"></div>
+                </div>
+            </div>
+
+            <h2>Afterschool Activities</h2>
+            <div class="columns-3">
+                
+                <div class="activity-column">
+                    <h3>Fall</h3>
+                    <div class="custom-select-container" id="fall-container"></div>
+                </div>
+
+                <div class="activity-column">
+                    <h3>Winter</h3>
+                    <div class="custom-select-container" id="winter-container"></div>
+                </div>
+
+                <div class="activity-column">
+                    <h3>Spring</h3>
+                    <div class="custom-select-container" id="spring-container"></div>
+                </div>
+            </div>
+
+           <button type="button" class="action-btn" onclick="window.location.href='loading.html'">See Recommendations</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA SETS ---
+        const freshmanCourses = [
+            "English 9", "Foundations of the Modern World", "Integrated Math 1", "Integrated Math 2", "Integrated Math 3", 
+            "Integrated Math 3/Precalculus", "Geometry", "Algebra 2", "Precalculus", "Advanced Precalculus", 
+            "Calculus", "AP Calculus AB", "AP Calculus BC", "Biology", "Design Products", "Design with Code", 
+            "Design with Physical Computing & Robotics", "Global Citizenship in the Digital Age", "Novice Mid Chinese", 
+            "Novice High Chinese", "Intermediate Chinese", "Intermediate Mid Chinese", "AP Chinese Language and Culture",
+            "Novice Mid-High Spanish", "Intermediate Spanish", "Intermediate Mid Spanish", "Intermediate High Spanish", 
+            "AP Spanish Language and Culture", "Novice Japanese", "Novice Mid Japanese", "Novice High Japanese", 
+            "Intermediate Japanese", "AP Japanese Language and Culture", "Intermediate High Japanese", "Advanced Japanese", 
+            "Advanced High Japanese", "Superior Japanese: General Topics", "Introduction to Band", "Concert Band 1", 
+            "Wind Ensemble", "Jazz Band", "Concert Choir 1", "Concert Choir 2", "Chamber Singers", "Concert Orchestra", 
+            "Chamber Orchestra", "Modern Band", "Modern Band 2", "Composition and Songwriting 1", "Composition and Songwriting 2",
+            "Acting 1", "Acting 2", "Advanced Acting", "Stagecraft", "Art Foundations", "Digital Filmmaking 1", 
+            "Digital Filmmaking 2", "Wellness 9", "Personal Fitness", "Strength Training and Conditioning"
+        ];
+
+        // --- NEW CLUB DATA FROM YOUR FILE ---
+        const clubData = {
+            aclubs: [
+                "Aerospace Club", "Animal Advocates", "Art Club", "Beyond The Plate", "COSA", 
+                "Engineering Club", "English Circle", "Evergreen", "GSA", "History Club", 
+                "Jazz Club", "Kagaku4Kids", "Math Circle", "Philosophy", "Pre-Medical Society", 
+                "SAFE", "South Asian Student Union", "Sustainable Fashion", "Tassel", "Law Society"
+            ],
+            bclubs: [
+                "Ambassadors", "Black Student Union", "Business Club", "Computer Science", "Fight On!", 
+                "Food Equality Alliance (FEA)", "Global Cultures Club", "Habitat Club", "Hands on Tokyo", 
+                "Human Rights Club", "Mindfulness", "Music Production Club", "Outdoor Adventure", 
+                "PICSEL", "SAGE", "Sudachi", "Tokyo Sports Outreach", "Train Club", "Tri-M"
+            ],
+            nonrot: [
+                "ASIJTV", "Daruma", "Hanabi/What's The Dealio", "HS Movie Club", "NHS", 
+                "Prom Committee", "Sports Medicine", "Yearbook", "Table Top Games", 
+                "Card Game Club", "Chess Club", "Activities & Athletics Council", 
+                "Enrichment Council", "Service Council", "Student Advisory Council", 
+                "Student Council (StuCo)", "Mustang Council"
+            ]
+        };
+
+        const activitiesData = {
+            fall: [
+                "Cheer Varsity", "Cross Country Boys Varsity", "Cross Country Boys JV", "Cross Country Girls Varsity", 
+                "Cross Country Girls JV", "Football Varsity", "Tennis Boys & Girls Varsity", "Tennis Girls JV", 
+                "Volleyball Boys Varsity", "Volleyball Boys JV", "Volleyball Girls Varsity", "Volleyball Girls JV", 
+                "Assistant JV Girls Volleyball", "Brain Bowl", "Fall Play", "Fitness Center Supervisor", 
+                "Model United Nations", "Speech", "VEX Robotics"
+            ],
+            winter: [
+                "Boys Basketball Varsity", "Boys Basketball JV", "Boys Soccer Varsity", "Boys Soccer JV", 
+                "Boys Soccer Goalie Coach", "Cheer Varsity", "Field Hockey Varsity", "Girls Basketball Varsity", 
+                "Girls Basketball JV", "Swim Varsity", "Wrestling", "Fencing", "Debate", "Kyogen", 
+                "One-Act Plays", "Model United Nations", "VEX Robotics", "Fitness Center Supervisor"
+            ],
+            spring: [
+                "Badminton Varsity", "Baseball", "Girls Soccer Varsity", "Girls Soccer JV", "Softball", 
+                "Track & Field", "Fencing", "Model United Nations", "Spring Musical", "Fitness Center Supervisor", 
+                "VEX Robotics"
+            ]
+        };
+
+        // --- STEP 1 LOGIC ---
+        function updateCourses(grade) {
+            const courseBox = document.getElementById('courseList');
+            courseBox.innerHTML = ""; 
+
+            let coursesToShow = [];
+            if (grade === 'freshman') coursesToShow = freshmanCourses;
+            else {
+                courseBox.innerHTML = "<p style='color: #888;'>Course data for " + grade + " coming soon.</p>";
+                return;
+            }
+
+            coursesToShow.forEach(courseName => {
+                const label = document.createElement('label');
+                label.className = "course-item";
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = "checkbox";
+                checkbox.name = "courses";
+                checkbox.value = courseName;
+
+                const span = document.createElement('span');
+                span.textContent = " " + courseName;
+
+                label.appendChild(checkbox);
+                label.appendChild(span);
+                courseBox.appendChild(label);
+            });
+        }
+
+        // --- STEP SWITCHING LOGIC ---
+        function goToStep2() {
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.remove('hidden');
+            
+            // Render drop-downs only once when entering step 2
+            initDropdowns(); 
+            window.scrollTo(0,0);
+        }
+
+        // --- STEP 2: DROPDOWN LOGIC ---
+        
+        function initDropdowns() {
+            // Init Clubs
+            createDropdown("aclubs", clubData.aclubs);
+            createDropdown("bclubs", clubData.bclubs);
+            createDropdown("nonrot", clubData.nonrot);
+
+            // Init Activities
+            createDropdown("fall", activitiesData.fall);
+            createDropdown("winter", activitiesData.winter);
+            createDropdown("spring", activitiesData.spring);
+        }
+
+        function createDropdown(key, items) {
+            const container = document.getElementById(`${key}-container`);
+            
+            // HTML Structure for Custom Dropdown
+            container.innerHTML = `
+                <div class="select-display" id="${key}-display" onclick="toggleDropdown('${key}')">
+                    <span id="${key}-selected-text">Choose here.</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="select-dropdown" id="${key}-dropdown">
+                    <input type="text" class="search-box" id="${key}-search" placeholder="Search..." onkeyup="filterOptions('${key}')" onclick="event.stopPropagation()">
+                    <div class="options-list" id="${key}-list">
+                        </div>
+                </div>
+            `;
+
+            // Populate List
+            const listContainer = document.getElementById(`${key}-list`);
+            
+            // 1. Add "Not Chosen" option first
+            const defaultOption = document.createElement('div');
+            defaultOption.className = 'option-item not-chosen';
+            defaultOption.textContent = "Not Chosen";
+            
+            // PASSING "Not Chosen" STRING so it triggers the filled state
+            defaultOption.onclick = () => selectItem(key, "Not Chosen");
+            
+            listContainer.appendChild(defaultOption);
+
+            // 2. Add Activity items
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'option-item';
+                div.textContent = item;
+                div.onclick = () => selectItem(key, item);
+                listContainer.appendChild(div);
+            });
+        }
+
+        function toggleDropdown(key) {
+            // Close others first
+            const allKeys = ['aclubs', 'bclubs', 'nonrot', 'fall', 'winter', 'spring'];
+            allKeys.forEach(k => {
+                if (k !== key) {
+                    const el = document.getElementById(`${k}-dropdown`);
+                    if(el) el.classList.remove('show');
+                }
+            });
+
+            const dropdown = document.getElementById(`${key}-dropdown`);
+            dropdown.classList.toggle('show');
+            
+            // Focus search box if opening
+            if(dropdown.classList.contains('show')) {
+                document.getElementById(`${key}-search`).focus();
+            }
+        }
+
+        function selectItem(key, value) {
+            const displayBox = document.getElementById(`${key}-display`);
+            const textSpan = document.getElementById(`${key}-selected-text`);
+            const dropdown = document.getElementById(`${key}-dropdown`);
+
+            if (value) {
+                // Whether it's an activity OR "Not Chosen", we show the yellow filled box
+                textSpan.textContent = value;
+                displayBox.classList.add('filled');
+            } else {
+                // Fallback (initial state)
+                textSpan.textContent = "Choose here.";
+                displayBox.classList.remove('filled');
+            }
+
+            // Hide dropdown
+            dropdown.classList.remove('show');
+        }
+
+        function filterOptions(key) {
+            const filter = document.getElementById(`${key}-search`).value.toUpperCase();
+            const list = document.getElementById(`${key}-list`);
+            const items = list.getElementsByClassName('option-item');
+
+            for (let i = 0; i < items.length; i++) {
+                const txtValue = items[i].textContent || items[i].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    items[i].style.display = "";
+                } else {
+                    items[i].style.display = "none";
+                }
+            }
+        }
+
+        // Close dropdowns if clicking outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.select-display') && !event.target.matches('.select-display *') && !event.target.matches('.search-box')) {
+                const dropdowns = document.getElementsByClassName("select-dropdown");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    if (dropdowns[i].classList.contains('show')) {
+                        dropdowns[i].classList.remove('show');
+                    }
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>
